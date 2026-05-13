@@ -1,0 +1,74 @@
+# ---------------------------------------------
+# Ensemble settings
+# ---------------------------------------------
+ensemble:
+  ne: 100
+  state: [log_permx]
+  prior_log_permx: {var: 1.0, grid: [50, 50, 1]}
+
+
+# ---------------------------------------------
+# Data Assimilation settings
+# ---------------------------------------------
+dataassim:
+  #daalg: [esmda, esmda]
+  daalg: [enrml, lmenrml]
+  energy: 0.99
+  staticvar: [log_permx]
+  obsname: date
+
+  # Why the fuck do I still need these????
+  truedataindex: [0, 1, 2, 3, 4]
+  assimindex: [0, 1, 2, 3, 4]
+
+  importstaticvar: ./PRIOR/log_prior.npz
+  truedata: ./DATA/true_data.pkl
+  datavar: ./DATA/true_data_var.pkl
+  savefolder: 'results_adjoint_enrml'
+
+  analysisdebug:
+    - pred_data 
+    - state 
+    - adjoints
+    - ensemble_misfit
+    - data_misfit 
+    - data_misfit_std
+    - prev_data_misfit
+    - prev_data_misfit_std
+
+  # EnRML options
+  iteration: {max_iter: 5, lambda: 1000.0, energy: 0.99}
+
+  # ESMDA options
+  #mda: {tot_assim_steps: 5, inflation_param: [5, 5, 5, 5, 5]}
+
+
+# ---------------------------------------------
+# Simulator settings
+# ---------------------------------------------
+fwdsim:
+  parallel: 1
+  runfile: MODEL.mako
+  reportpoint: ./DATA/assim_dates.csv
+  #reportpoint: ./TRUE_MODEL/report_dates.csv
+  reporttype: dates 
+
+  datatype:
+    - WOPR:P1:P2:P3:P4
+    - WGPR:P1:P2:P3:P4
+    - WWPR:P1:P2:P3:P4
+    
+  adjoint_pbar: true
+  adjoints:
+    WOPR:
+      steps: all
+      wellID: [P1, P2, P3, P4]
+      parameters: [log_permx]
+    WGPR:
+      steps: all
+      wellID: [P1, P2, P3, P4]
+      parameters: [log_permx]
+    WWPR:
+      steps: all
+      wellID: [P1, P2, P3, P4]
+      parameters: [log_permx]
